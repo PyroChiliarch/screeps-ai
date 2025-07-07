@@ -2,8 +2,16 @@ var Systems = require('./systems');
 
 module.exports = {
     run: function() {
-        //Systems.moveSystem();
-        //Systems.harvestSystem();
-        //Systems.spawnSystem();
+
+
+        // Run systems
+
+        // Systems.moveSystem();
+        // Systems.harvestSystem();
+        // Systems.spawnSystem();
+
+        // Process queued commands
+        // Commands.process();
+        
     }
 };

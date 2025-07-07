@@ -1,6 +1,17 @@
 var _ = require('lodash');
 
 
+
+// Clean up Memory
+for (let creepName in Memory.creeps) {
+    if (!(Game.creeps[creepName])) {
+        delete Memory.creeps[creepName];
+    }
+}
+
+
+
+
 // Init Memory
 if (!Memory.colony) {
     Memory.colony = [];
@@ -14,12 +25,22 @@ if (!Memory.colony) {
             Memory.colony.push({
                 name: roomName,
                 homeRoom: roomName,
+                state_growth: "0_start",
+                state_growth_health: "good",
             });
         }
     }
 }
 
 
+
+
+
+/*
+for (let colony of Memory.colony) {
+    colony.state_growth = "0_start";
+    colony.state_growth_health = "good";
+}*/
 
 
 
@@ -34,7 +55,7 @@ for (let colony of Memory.colony) {
     let harvestCreeps = _.filter(Game.creeps, (creep) => creep.memory.role === "harvester");
     let harvestCreepsA = _.filter(harvestCreeps, (creep) => creep.memory.roleType === "basic");
 
-    console.log(harvestCreepsA.length);
+    //console.log(harvestCreepsA.length);
 
 
     // Sources 
@@ -46,7 +67,7 @@ for (let colony of Memory.colony) {
         // Get creeps for this source
         let sourceCreeps = _.filter(harvestCreepsA, (creep) => creep.memory.source === source.id);
 
-        if (sourceCreeps.length < 4) {
+        if (sourceCreeps.length < 6) {
             console.log("Spawning harvester_basic for source: " + source.id);
             spawns[0].spawnCreep([WORK, CARRY, CARRY, MOVE, MOVE], "harvester_basic_" + Game.time, {
                 memory: { role: "harvester", roleType: "basic", colony: colony.name, source: source.id }
@@ -188,9 +209,3 @@ for (creep in Game.creeps) {
 
 
 
-// Remove dead creeps from Memory
-for (let creepName in Memory.creeps) {
-    if (!(Game.creeps[creepName])) {
-        delete Memory.creeps[creepName];
-    }
-}

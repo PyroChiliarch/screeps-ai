@@ -1,13 +1,14 @@
 var _ = require('lodash');
 var Scheduler = require('./scheduler');
+let Query = require('./query');
+let Entities = require('./entities');
 
 module.exports.loop = function() {
 
 
+
     // Single Stage for now
     Scheduler.run();
-
-
 
 
     old_code();
@@ -31,7 +32,6 @@ let old_code = function () {
         if (!(Game.creeps[creepName])) {
             delete Memory.creeps[creepName];
         }
-        console.log("Creep name is: " + creepName);
     }
 
 

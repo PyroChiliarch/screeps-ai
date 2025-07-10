@@ -6,6 +6,8 @@ let Entities = require('./entities');
 module.exports.loop = function() {
 
 
+    console.log("Tick: " + Game.time);
+
 
     // Single Stage for now
     Scheduler.run();

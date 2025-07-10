@@ -12,9 +12,6 @@ module.exports = {
                 {
                     id: "W8N3",
                     is_colony: true,
-                    homeRoom: {
-                        room: "W8N3",
-                    }
                 }
             ]
         }

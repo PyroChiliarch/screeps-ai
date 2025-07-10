@@ -5,11 +5,16 @@ module.exports = {
 
 
 
+    queued_newEntities: [],
     queued_adds: [],
     queued_removes: [],
 
     run_changes: function() {
 
+        console.log("Commiting Changes to entities");
+
+        console.log("Queued new entities: " + this.queued_newEntities.length);
+        console.log("Queued entities " + JSON.stringify(this.queued_newEntities));
         // This should be done at the end of the schedule
         // So theres no inconsitencies in the middle of the schedule
 
@@ -30,18 +35,20 @@ module.exports = {
         // Empty quened changes
         this.queued_adds = [];
         this.queued_removes = [];
+
+        console.log(JSON.stringify(this.queued_newEntities));
     },
 
     
 
 
-    new: function() {
-
-        // Gen new id
-        let id = Math.random().toString(36).substring(2, 15);
+    new: function(id) {
 
         // Create a base entity with no components
-        return { id: id, dirty: true };
+        console.log("New entity: " + id);
+        let entity = { id: id, dirty: true };
+        module.exports.queued_newEntities.push(entity);
+        return entity;
 
     },
 
@@ -78,7 +85,7 @@ module.exports = {
 
         }
     },
-    home_room: {
+    home_colony: {
         add: function(entity, room_name) {
 
             // Return if already has home_room component

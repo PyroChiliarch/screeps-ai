@@ -1,60 +1,62 @@
 var Entities = require('./entities');
+let Query = require('./query');
+let Util = require('./util');
 
 module.exports = {
 
 
     spawnSystem: function() {
+        
+        let colonies = Query.colonyQuery().result;
 
-        // Query for all colonies
-        let colony_entities = query.colonyQuery();
-        let creep_entities = query.creepQuery();
+        for (let colony of colonies) {
 
-        for (let colony of colony_entities) {
+            // Get home room
+            let homeRoom = Game.rooms[colony.id];
+
+            
+            // Get spawn
+            let spawn = homeRoom.find(FIND_MY_SPAWNS)[0];
+
+            // Get Creep count
+            let creepCount = homeRoom.find(FIND_MY_CREEPS).length;
 
 
             
-            let colonyRoom = colony_entity.components.HomeRoom.room;
+            if (creepCount < 10) {
 
-            let colonyCreeps = creep_entities.filter(creep => creep.room === colonyRoom);
+                // Spawn Creep
+                let creepName = colony.id + '_' + Util.gen_id();
+                let result = spawn.spawnCreep([WORK, CARRY, MOVE], creepName);
 
-            // Get sources in room
-
-            let sources = colonyRoom.find(FIND_SOURCES);
-            for (let source of sources) {
-                let sourceCreeps = colonyCreeps.filter(creep => creep.source === source);
-                if (sourceCreeps.length < 1) {
-                    // Spawn creep
+                // Skip entity creation if spawn fails
+                if (result !== OK) {
+                    console.log("Failed to spawn creep: " + creepName + " " + result.toString());
+                    continue;
                 }
+
+
+                console.log("ID: " + Game.creeps[creepName].id);
+
+
+                // Create entity
+                let id = Game.creeps[creepName].id;
+                let entity = Entities.new(id, creepName);
+
+                // Add components
+                Entities.is_creep.add(entity); // This is a creep
+                Entities.home_colony.add(entity, colony.id); // Creep has a home room
+
             }
             
 
-            // Get Ready spawns
-            let readySpawns = Game.spawns.filter(spawn => spawn.ready);
+            
+
+
+
+
+
         }
-
-        // Calculate needed creeps
-        
-
-
-        // Get Ready spawns
-
-        
-        // Quene command to spawn creeps
-
-
-
     },
 
-
-    moveSystem: function() {
-        // Move system logic
-    },
-    
-    harvestSystem: function() {
-        // Harvest system logic
-    },
-    
-    spawnSystem: function() {
-        // Spawn system logic
-    }
 };

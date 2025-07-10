@@ -6,10 +6,11 @@ module.exports = {
 
 
         // Run systems
+        Systems.spawnSystem();
         
         // Systems.moveSystem();
         // Systems.harvestSystem();
-        // Systems.spawnSystem();
+        // 
 
         // Run changes that must occour at end of the schedule
 

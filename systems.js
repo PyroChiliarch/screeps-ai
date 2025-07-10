@@ -23,28 +23,25 @@ module.exports = {
 
 
             
-            if (creepCount < 10) {
+            if (creepCount < 0) {
 
                 // Spawn Creep
-                let creepName = colony.id + '_' + Util.gen_id();
-                let result = spawn.spawnCreep([WORK, CARRY, MOVE], creepName);
+                let creep_name = colony.id + '_' + Util.gen_id();
+                let result = spawn.spawnCreep([WORK, CARRY, MOVE], creep_name);
 
                 // Skip entity creation if spawn fails
                 if (result !== OK) {
-                    console.log("Failed to spawn creep: " + creepName + " " + result.toString());
+                    console.log("Failed to spawn creep: " + creep_name + " " + result.toString());
                     continue;
                 }
-
-
-                console.log("ID: " + Game.creeps[creepName].id);
+                console.log("Spawned creep: " + creep_name);
 
 
                 // Create entity
-                let id = Game.creeps[creepName].id;
-                let entity = Entities.new(id, creepName);
+                let entity = Entities.new();
 
                 // Add components
-                Entities.is_creep.add(entity); // This is a creep
+                Entities.creep.add(entity, creep_name); // This is a creep
                 Entities.home_colony.add(entity, colony.id); // Creep has a home room
 
             }

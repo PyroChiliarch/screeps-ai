@@ -50,21 +50,6 @@ module.exports = {
 
 
     },
-
-
-    // Query to get all colonies
-    colonyQuery: function() {
-
-        // Returns an array of enities with their components
-        return {
-            result: [
-                {
-                    id: "W8N3",
-                    is_colony: true,
-                }
-            ]
-        }
-    },
     
 
 

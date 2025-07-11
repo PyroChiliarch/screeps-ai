@@ -10,7 +10,12 @@ module.exports = {
 
         
 
-        let colonies = Query.colonyQuery().result;
+        let colonies = [
+            {
+                id: "W8N3",
+                is_colony: true,
+            }
+        ]
 
         for (let colony of colonies) {
 

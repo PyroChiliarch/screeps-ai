@@ -1,21 +1,109 @@
+// ////////////////////////////////////////
+// Archetype Structure:
+// {
+//   "components": ["creep", "home_room"],           // Array of component names (sorted, unique, lowercase)
+//   "id": "creep,home_room",                        // String identifier for the archetype
+//   "entities": [                                   // Array of entity objects that match this archetype
+//     { ... },
+//     { ... },
+//     { ... },
+//   ]
+// }
+//
+// Entity Structure:
+//  {
+//      "id": "iv3plbw0pzd"                        // Unique entity identifier
+//      "components": {                             // Entity's actual component data
+//          "creep": {"name": "W8N3_uzcg4idah8"},
+//          "home_room": "W8N3"
+//      },
+//      "dirty": true                                // Flag to indicate if the entity has been modified
+//      }
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let Util = require('./util');
+
+// Internal variables
+queued_component_changes = [];
+
+
+// Setup new entity storage
+if (!Memory.new_entities) {
+    Memory.new_entities = [];
+}
+
+
+// Setup entity storage
+if (!Memory.archetypes) {
+    Memory.archetypes = {};
+}
+
+
+
+
+function add_component_change(command) {
+
+    // Add the command to the queue
+    queued_component_changes.push(command);
+
+}
+
+
+
 
 function get_archtype_id (components) {
 
-    return components.map(component => component.toLowerCase())
-    .filter((component, index, array) => array.indexOf(component) === index)
-    .sort().join(',');
+    if (!components) {
+        return "empty";
+    }
+
+
+
+    return Object.keys(components).map(component => component.toLowerCase())
+        .filter((component, index, array) => array.indexOf(component) === index)
+        .sort().join(',');
 
 }
 
 
 class Archetype {
     constructor(archetype_components) {
-        
+
+
+        if (!archetype_components) {
+            archetype_components = ['empty'];
+        }
+
+
 
         return {
+
+            
             
             // Component signature (sorted, unique, lowercase)
-            components: archetype_components
+            components: Object.keys(archetype_components)
                 .map(component => component.toLowerCase())
                 .filter((component, index, array) => array.indexOf(component) === index)
                 .sort(),
@@ -29,12 +117,6 @@ class Archetype {
     }
 }
 
-
-// Setup entity storage
-
-if (!Memory.entities) {
-    Memory.entities = {};
-}
 
 
 
@@ -58,21 +140,73 @@ module.exports = {
 
         let id = get_archtype_id(components);
 
-        if (!Memory.entities[id]) {
-            Memory.entities[id] = new Archetype(components);
+        if (!Memory.archetypes[id]) {
+            Memory.archetypes[id] = new Archetype(components);
+            console.log("Created new archetype: " + id);
         }
 
-        return Memory.entities[id];
+        // Repair the structure of the archetype
+        if (!Memory.archetypes[id].entities) {
+            Memory.archetypes[id].entities = [];
+        }
+
+        return Memory.archetypes[id];
 
     },
 
 
 
+    // Reorganises entities into correct archetypes
+    update_archetypes: function() {
+
+        console.log("Updating archetypes");
 
 
-    // TODO Have function to create archetype
-    // Need to add code where the entities are added
-    // Need to add code that removes old archetypes
+
+        // Filter out all dirty entities
+        let dirty_entities = [];
+        for (let archetype of Object.values(Memory.archetypes)) {
+
+            // Get all dirty entities in this archetype and add them to the dirty entities list
+            dirty_entities.concat(archetype.entities.filter(entity => entity.dirty));
+
+            // Remove dirty entities from the archetype
+            archetype.entities = archetype.entities.filter(entity => !entity.dirty);
+
+        }
+
+
+
+        // Reorganise dirty entities into correct archetypes
+        for (let entity of dirty_entities) {
+
+            // Get the archetype of the entity
+            let archetype = this.get_archetype(entity.components);
+
+            // Add the entity to the archetype
+            archetype.entities.push(entity);
+
+            // Remove dirty flag
+            delete entity.dirty;
+
+        }
+
+
+
+    },
+
+
+    // Remove all archetypes with no entities
+    clean_archetypes: function() {
+        for (let archetype of Object.values(Memory.archetypes)) {
+            if (archetype.entities.length === 0) {
+                delete Memory.archetypes[archetype.id];
+                console.log("Removed empty archetype: " + archetype.id);
+            }
+        }
+    },
+
+
 
 
 
@@ -83,47 +217,47 @@ module.exports = {
     // Life Cycle
     // ////////////////////////////////////
 
+    
+    process_new_entities: function() {
 
-    queued_adds: [],
-    queued_removes: [],
+        for (let entity of Memory.new_entities) {
 
+            // Add the entity to the correct archetype
+            let archetype = this.get_archetype(entity.components);
+            archetype.entities.push(entity);
 
-    // Should run at end of the tick
-    run_changes: function() {
+            // Remove dirty flag
+            delete entity.dirty;
 
-        console.log("Commiting Changes to entities");
-
-        //console.log("Queued new entities: " + this.queued_newEntities.length);
-        // This should be done at the end of the schedule
-        // So theres no inconsitencies in the middle of the schedule
-
-        // Remove first
-        for (let remove of this.queued_removes) {
-            remove();
         }
 
-        // Then add components
-        for (let add of this.queued_adds) {
-            add();
+        // Empty temp memory
+        Memory.new_entities = [];
+
+    },
+    
+
+
+    // runs delayed commands at end of the tick
+    process_component_changes: function() {
+
+        console.log("Running commands");
+
+
+        console.log("Queued changes: " + queued_component_changes.length);
+
+        // Run all component changes
+        for (let change of queued_component_changes) {
+            change();
         }
-
-        // Since entities have been marked as dirty, we know which ones need reorganising
-        // TODO: Reorganise entities into correct archetypes
-
-        let dirty_entities = [];
-        
-
-
-
-        // Add new entities to the correct archetype
-        
 
         // Empty quened changes
-        this.queued_adds = [];
-        this.queued_removes = [];
-
+        queued_component_changes = [];
         
     },
+
+
+    
 
     
 
@@ -131,8 +265,9 @@ module.exports = {
     new: function() {
 
         // Create a base entity with no components
-        let entity = { dirty: true };
-        module.exports.queued_newEntities.push(entity);
+        let entity = { dirty: true, components: {} };
+        Memory.new_entities.push(entity);
+        entity.id = Util.gen_id();
         return entity;
 
     },
@@ -149,37 +284,16 @@ module.exports = {
     // ////////////////////////////////////
 
 
-    // ID of the entity
-    // Needs this before it can be added to an archetype
-    id: {
-        add: function(entity) {
-
-            if (entity.id) return;
-            entity.id = Util.gen_id();
-            entity.dirty = true;
-
-        },
-
-        remove: function(entity) {
-            delete entity.id;
-            entity.dirty = true;
-        }
-
-    },
-
-
 
     // Creep entity
     // Creepin along
     creep: {
         add: function(entity, creep_name) {
 
-            // Return if already has is_creep component
-            if (entity.is_creep) return;
-
             // Capture entity in closure
-            module.exports.queued_adds.push(function() {
-                entity.creep = { name: creep_name };
+            add_component_change(function() {
+                if (entity.components.creep) return;
+                entity.components.creep = { name: creep_name };
                 entity.dirty = true;
             });
 
@@ -187,8 +301,9 @@ module.exports = {
         remove: function(entity) {
 
             // Capture entity in closure
-            module.exports.queued_removes.push(function() {
-                delete entity.creep;
+            add_component_change(function() {
+                if (!entity.components.creep) return;
+                delete entity.components.creep;
                 entity.dirty = true;
             });
 
@@ -200,12 +315,10 @@ module.exports = {
     home_colony: {
         add: function(entity, room_name) {
 
-            // Return if already has home_room component
-            if (entity.home_room) return;
-
             // Capture entity in closure
-            module.exports.queued_adds.push(function() {
-                entity.home_room = room_name;
+            add_component_change(function() {
+                if (entity.components.home_room) return;
+                entity.components.home_room = room_name;
                 entity.dirty = true;
             });
 
@@ -213,8 +326,9 @@ module.exports = {
         remove: function(entity) {
 
             // Capture entity in closure
-            module.exports.queued_removes.push(function() {
-                delete entity.home_room;
+            add_component_change(function() {
+                if (!entity.components.home_room) return;
+                delete entity.components.home_room;
                 entity.dirty = true;
             });
 

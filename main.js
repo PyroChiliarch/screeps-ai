@@ -6,14 +6,18 @@ let Entities = require('./entities');
 module.exports.loop = function() {
 
 
+    console.log("==========================================");
     console.log("Tick: " + Game.time);
+
+
+    
+
+
+    old_code();
 
 
     // Single Stage for now
     Scheduler.run();
-
-
-    old_code();
 }
 
 

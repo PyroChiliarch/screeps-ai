@@ -7,6 +7,9 @@ module.exports = {
 
     spawnSystem: function() {
         
+
+        
+
         let colonies = Query.colonyQuery().result;
 
         for (let colony of colonies) {
@@ -39,6 +42,7 @@ module.exports = {
 
                 // Create entity
                 let entity = Entities.new();
+                Entities.creep.add(entity, creep_name);
 
                 // Add components
                 Entities.creep.add(entity, creep_name); // This is a creep
@@ -55,5 +59,23 @@ module.exports = {
 
         }
     },
+
+
+    creepCountSystem: function() {
+
+
+        // Get all archetypes with the creep component
+        let creep_count = Object.values(Memory.archetypes).reduce((total, archetype) => {
+            if (archetype.components.includes('creep')) {
+                total += archetype.entities.length;
+            }
+            return total;
+        }, 0);
+
+        console.log("Creep count: " + JSON.stringify(creep_count));
+        
+    }
+
+
 
 };

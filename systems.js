@@ -50,8 +50,8 @@ module.exports = {
                 Entities.creep.add(entity, creep_name);
 
                 // Add components
-                Entities.creep.add(entity, creep_name); // This is a creep
-                Entities.home_colony.add(entity, colony.id); // Creep has a home room
+                Components.creep.add(entity, creep_name); // This is a creep
+                Components.home_colony.add(entity, colony.id); // Creep has a home room
 
             }
             

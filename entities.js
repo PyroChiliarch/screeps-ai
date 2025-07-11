@@ -18,13 +18,7 @@
 //          "home_room": "W8N3"
 //      },
 //      "dirty": true                                // Flag to indicate if the entity has been modified
-//      }
-//
-//
-//
-//
-//
-//
+//  }
 //
 //
 
@@ -34,9 +28,9 @@
 
 
 
-
-
-
+// ////////////////////////////////////
+// Memory and Variable Setup
+// ////////////////////////////////////
 
 
 
@@ -279,61 +273,27 @@ module.exports = {
 
 
 
-    // ////////////////////////////////////
-    // Components
-    // ////////////////////////////////////
 
 
 
-    // Creep entity
-    // Creepin along
-    creep: {
-        add: function(entity, creep_name) {
+            // array of archetypes
+            archetypes: archetypes,
 
-            // Capture entity in closure
-            add_component_change(function() {
-                if (entity.components.creep) return;
-                entity.components.creep = { name: creep_name };
-                entity.dirty = true;
-            });
-
-        },
-        remove: function(entity) {
-
-            // Capture entity in closure
-            add_component_change(function() {
-                if (!entity.components.creep) return;
-                delete entity.components.creep;
-                entity.dirty = true;
-            });
-
+            // flat array of entities
+            entities: archetypes.map((archetype) => { 
+                return archetype.entities;
+            }).flat(),
         }
+
+
+
     },
 
 
-    // Home Colony where this enitity belongs
-    home_colony: {
-        add: function(entity, room_name) {
 
-            // Capture entity in closure
-            add_component_change(function() {
-                if (entity.components.home_room) return;
-                entity.components.home_room = room_name;
-                entity.dirty = true;
-            });
 
-        },
-        remove: function(entity) {
 
-            // Capture entity in closure
-            add_component_change(function() {
-                if (!entity.components.home_room) return;
-                delete entity.components.home_room;
-                entity.dirty = true;
-            });
-
-        }
-    }
+   
 
 
 

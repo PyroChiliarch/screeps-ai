@@ -64,16 +64,12 @@ module.exports = {
     creepCountSystem: function() {
 
 
-        // Get all archetypes with the creep component
-        let creep_count = Object.values(Memory.archetypes).reduce((total, archetype) => {
-            if (archetype.components.includes('creep')) {
-                total += archetype.entities.length;
-            }
-            return total;
-        }, 0);
 
-        console.log("Creep count: " + JSON.stringify(creep_count));
-        
+
+        let result = Query.run(['creep'], []);
+
+        console.log("Creep count: " + result.entities.length);
+
     }
 
 

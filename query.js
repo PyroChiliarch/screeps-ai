@@ -1,6 +1,55 @@
 var Components = require('./entities');
 
+
+
+
+
+
 module.exports = {
+
+
+
+    // Query to get all entities that match the required components
+    run: function (required, without) {
+
+        // Default to empty arrays if not provided
+        if (!required) {
+            required = [];
+        }
+        if (!without) {
+            without = [];
+        }
+
+        // Get all archetypes that match the required components
+        let archetypes = Object.values(Memory.archetypes).filter((archetype) => {
+
+            // If the archetype does not have all of the required components, return false
+            for (let component of required) {
+                if (!archetype.components.includes(component)) {
+                    return false;
+                }
+            }
+
+            // If the archetype has any of the components in the without array, return false
+            for (let component of without) {
+                if (archetype.components.includes(component)) {
+                    return false;
+                }
+            }
+            return true;
+        });
+
+
+        return {
+            archetypes: archetypes, // list of archetypes
+            entities: archetypes.map((archetype) => { // list of entities
+                return archetype.entities;
+            }).flat(),
+        }
+
+
+
+    },
 
 
     // Query to get all colonies
@@ -16,64 +65,7 @@ module.exports = {
             ]
         }
     },
-
-
-    // Query to get all creeps
-    creepQuery: function() {
-
-        // Returns an array of enities with their components
-
-        // This is what it should look like
-        /*return {
-            result: [
-                {
-                    id: "entity_id",
-                    is_creep: true,
-                    homeRoom: {
-                        room: "W8N3",
-                    },
-                    harvest: {
-                        target_source: "source_id",
-                        target_room: "W8N3",
-                    }
-                }
-            ]
-        }*/
-
-        let creep_entities = [];
-
-        for (let creepName in Game.creeps) {
-            let creep = Game.creeps[creepName];
-
-            creep_entities.push({
-                id: creep.id,
-                is_creep: true,
-                home_room: {
-                    room: creep.room.name,
-                },
-                harvester: {
-                    target_source: creep.memory.source,
-                    target_room: creep.room.name,
-                }
-                
-            });
-        }
-
-        // This is what it should look like
-        return {
-            result: creep_entities,
-        }
-
-
-
-
-
-    },
-
-
     
-
-
 
 
 

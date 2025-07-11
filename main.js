@@ -1,7 +1,6 @@
 var _ = require('lodash');
-var Scheduler = require('./scheduler');
-let Query = require('./query');
-let Entities = require('./entities');
+var Schedule = require('./schedule');
+var Systems = require('./systems');
 
 module.exports.loop = function() {
 
@@ -17,7 +16,21 @@ module.exports.loop = function() {
 
 
     // Single Stage for now
-    Scheduler.run();
+    Schedule.before_tick();
+
+    // Run creep systems
+    Schedule.new([
+        Systems.spawnSystem,
+        Systems.creepCountSystem,
+    ]).run();
+
+
+    Schedule.after_tick();
+
+
+
+
+
 }
 
 

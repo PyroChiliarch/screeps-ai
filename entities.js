@@ -33,12 +33,6 @@
 // ////////////////////////////////////
 
 
-
-
-
-
-let Util = require('./util');
-
 // Internal variables
 queued_component_changes = [];
 
@@ -57,6 +51,15 @@ if (!Memory.archetypes) {
 
 
 
+
+
+
+// ////////////////////////////////////
+// Internal Functions
+// ////////////////////////////////////
+
+
+// Add a command to the queue to be run at the end of the tick
 function add_component_change(command) {
 
     // Add the command to the queue
@@ -65,15 +68,14 @@ function add_component_change(command) {
 }
 
 
+// Generate a unique id
+function gen_id() {
+    return Math.random().toString(36).substring(2, 15);
+}
 
 
+// Get the id of an archetype based on its components
 function get_archtype_id (components) {
-
-    if (!components) {
-        return "empty";
-    }
-
-
 
     return Object.keys(components).map(component => component.toLowerCase())
         .filter((component, index, array) => array.indexOf(component) === index)
@@ -81,36 +83,38 @@ function get_archtype_id (components) {
 
 }
 
-
-class Archetype {
-    constructor(archetype_components) {
-
-
-        if (!archetype_components) {
-            archetype_components = ['empty'];
-        }
-
-
-
-        return {
-
-            
-            
-            // Component signature (sorted, unique, lowercase)
-            components: Object.keys(archetype_components)
-                .map(component => component.toLowerCase())
-                .filter((component, index, array) => array.indexOf(component) === index)
-                .sort(),
-
-            // Can be used to identify the archetype as keys in objects
-            id: get_archtype_id(archetype_components),
-            
-            // Entity IDs (not the actual entities)
-            entities: []
-        }
-    }
+function get_component_names(components) {
+    return Object.keys(components)
+        .map(component => component.toLowerCase())
+        .filter((component, index, array) => array.indexOf(component) === index)
+        .sort();
 }
 
+
+
+function create_archetype(components) {
+    
+    if (!archetype_components) {
+        archetype_components = ['empty'];
+    }
+
+    archetype = {
+        
+        // Component signature (sorted, unique, lowercase)
+        components: Object.keys(archetype_components)
+            .map(component => component.toLowerCase())
+            .filter((component, index, array) => array.indexOf(component) === index)
+            .sort(),
+
+        // Can be used to identify the archetype as keys in objects
+        id: get_archtype_id(archetype_components),
+        
+        // Entity IDs (not the actual entities)
+        entities: []
+    }
+    
+    
+}
 
 
 
@@ -120,30 +124,38 @@ module.exports = {
 
 
 
-
-
-
     // ////////////////////////////////////
-    // Archetypes
+    // Archetype functions
     // ////////////////////////////////////
 
  
 
-    get_archetype: function(components) {
+    // Retreive an archetype from memory
+    // Transparently creates a new archetype if it doesn't exist
+    get_archetype: function(raw_components) {
 
+        // Make sure atleast 1 component is provided
+        if (!raw_components) {
+            raw_components = { no_components: true };
+        }
 
-        let id = get_archtype_id(components);
+        // Get the id of the archetype
+        let id = get_archtype_id(raw_components);
 
+        // If the archetype doesn't exist, create it
         if (!Memory.archetypes[id]) {
-            Memory.archetypes[id] = new Archetype(components);
+
+            Memory.archetypes[id] = {
+                id: id,
+                components: get_component_names(raw_components),
+                entities: []
+            }
+
             console.log("Created new archetype: " + id);
+            
         }
 
-        // Repair the structure of the archetype
-        if (!Memory.archetypes[id].entities) {
-            Memory.archetypes[id].entities = [];
-        }
-
+        // Return reference to the archetype
         return Memory.archetypes[id];
 
     },
@@ -251,6 +263,10 @@ module.exports = {
     },
 
 
+
+    // ////////////////////////////////////
+    // Entities
+    // ////////////////////////////////////
     
 
     
@@ -268,13 +284,41 @@ module.exports = {
 
 
 
+    // Query to get all entities that match the required components
+    query: function (required, without) {
+
+        // Default to empty arrays if not provided
+        if (!required) {
+            required = [];
+        }
+        if (!without) {
+            without = [];
+        }
+
+        // Get all archetypes that match the required components
+        // Uses a filter over the Memory.archetypes object
+        let archetypes = Object.values(Memory.archetypes).filter((archetype) => {
+
+            // If the archetype does not have all of the required components, return false
+            for (let component of required) {
+                if (!archetype.components.includes(component)) {
+                    return false;
+                }
+            }
+
+            // If the archetype has any of the components in the without array, return false
+            for (let component of without) {
+                if (archetype.components.includes(component)) {
+                    return false;
+                }
+            }
+            return true;
+        });
 
 
 
-
-
-
-
+        // Return the archetypes and entities
+        return {
 
             // array of archetypes
             archetypes: archetypes,

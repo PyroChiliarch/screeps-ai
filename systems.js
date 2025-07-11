@@ -1,6 +1,5 @@
 var Entities = require('./entities');
-let Query = require('./query');
-let Util = require('./util');
+var Components = require('./components');
 
 module.exports = {
 
@@ -34,7 +33,7 @@ module.exports = {
             if (creepCount < 0) {
 
                 // Spawn Creep
-                let creep_name = colony.id + '_' + Util.gen_id();
+                let creep_name = colony.id + '_' + Math.random().toString(36).substring(2, 15);
                 let result = spawn.spawnCreep([WORK, CARRY, MOVE], creep_name);
 
                 // Skip entity creation if spawn fails
@@ -47,7 +46,6 @@ module.exports = {
 
                 // Create entity
                 let entity = Entities.new();
-                Entities.creep.add(entity, creep_name);
 
                 // Add components
                 Components.creep.add(entity, creep_name); // This is a creep
@@ -71,11 +69,14 @@ module.exports = {
 
 
 
-        let result = Query.run(['creep'], []);
+        let result = Entities.query(['creep'], []);
 
         console.log("Creep count: " + result.entities.length);
 
     }
+
+
+
 
 
 

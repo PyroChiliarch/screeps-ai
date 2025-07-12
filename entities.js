@@ -59,19 +59,9 @@ if (!Memory.archetypes) {
 // ////////////////////////////////////
 
 
-// Add a command to the queue to be run at the end of the tick
-function add_component_change(command) {
-
-    // Add the command to the queue
-    queued_component_changes.push(command);
-
-}
 
 
-// Generate a unique id
-function gen_id() {
-    return Math.random().toString(36).substring(2, 15);
-}
+
 
 
 // Get the id of an archetype based on its components
@@ -165,8 +155,6 @@ module.exports = {
     // Reorganises entities into correct archetypes
     update_archetypes: function() {
 
-        console.log("Updating archetypes");
-
 
 
         // Filter out all dirty entities
@@ -247,10 +235,10 @@ module.exports = {
     // runs delayed commands at end of the tick
     process_component_changes: function() {
 
-        console.log("Running commands");
-
-
-        console.log("Queued changes: " + queued_component_changes.length);
+        // If there are no changes, skip
+        if (queued_component_changes.length > 0) {
+            console.log("Queued changes: " + queued_component_changes.length);
+        }
 
         // Run all component changes
         for (let change of queued_component_changes) {
@@ -277,9 +265,27 @@ module.exports = {
         // Create a base entity with no components
         let entity = { dirty: true, components: {} };
         Memory.new_entities.push(entity);
-        entity.id = Util.gen_id();
+        entity.id = Math.random().toString(36).substring(2, 15);
         return entity;
 
+    },
+
+    // Add a command to the queue to be run at the end of the tick
+    add_component: function(entity, component_name, component_data) {
+
+        // Add the command to the queue
+        queued_component_changes.push(function() {
+            entity.components[component_name] = component_data;
+            entity.dirty = true;
+        });
+
+    },
+
+    remove_component: function(entity, component_name) {
+        queued_component_changes.push(function() {
+            delete entity.components[component_name];
+            entity.dirty = true;
+        });
     },
 
 

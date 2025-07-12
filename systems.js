@@ -20,7 +20,6 @@ module.exports = {
 
             // Get home room
             let homeRoom = Game.rooms[colony.id];
-
             
             // Get spawn
             let spawn = homeRoom.find(FIND_MY_SPAWNS)[0];
@@ -66,12 +65,60 @@ module.exports = {
 
     creepCountSystem: function() {
 
-
-
-
         let result = Entities.query(['creep'], []);
 
         console.log("Creep count: " + result.entities.length);
+
+    },
+    
+
+
+    assignGameobjectSystem: function() {
+
+
+        let result = Entities.query(['pending_gameobject_creep', 'creep'], []);
+
+
+
+
+        
+        for (let entity of result.entities) {
+
+            let c_wait_for_gameobject_creep = entity.components.pending_gameobject_creep;
+            let c_creep = entity.components.creep;
+
+
+            // Try getting gameobject of creep
+            let object = Game.getObjectById(Game.creeps[c_creep.name].objectId);
+
+            // If gameobject is found, add gameobject component
+            if (object) {
+                Components.gameobject.add(entity, object.id);
+                Components.pending_gameobject_creep.remove(entity);
+                continue;
+            }
+
+
+            // If gameobject is not found, check if max wait time has been reached
+            // If so, remove the entity
+            if (Game.time - c_wait_for_gameobject_creep.created > c_wait_for_gameobject_creep.max_wait_time) {
+                Components.pending_gameobject_creep.remove(entity);
+                console.log("Max wait time reached for creep: " + c_creep.name);
+                // TODO: Delete entity
+                continue;
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
 
     }
 

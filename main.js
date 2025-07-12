@@ -5,12 +5,6 @@ var Systems = require('./systems');
 module.exports.loop = function() {
 
 
-    console.log("==========================================");
-    console.log("Tick: " + Game.time);
-
-
-    
-
 
     old_code();
 
@@ -21,7 +15,7 @@ module.exports.loop = function() {
     // Run creep systems
     Schedule.new([
         Systems.spawnSystem,
-        Systems.creepCountSystem,
+       // Systems.creepCountSystem,
     ]).run();
 
 

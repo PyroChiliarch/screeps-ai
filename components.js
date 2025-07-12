@@ -1,4 +1,8 @@
+var Entities = require('./entities');
+
+
 module.exports = {
+    
     
     // Creep entity
     // Creepin along
@@ -6,21 +10,13 @@ module.exports = {
         add: function(entity, creep_name) {
 
             // Capture entity in closure
-            add_component_change(function() {
-                if (entity.components.creep) return;
-                entity.components.creep = { name: creep_name };
-                entity.dirty = true;
-            });
+            Entities.add_component(entity, "creep", { name: creep_name });
 
         },
         remove: function(entity) {
 
             // Capture entity in closure
-            add_component_change(function() {
-                if (!entity.components.creep) return;
-                delete entity.components.creep;
-                entity.dirty = true;
-            });
+            Entities.remove_component(entity, "creep");
 
         }
     },
@@ -31,24 +27,47 @@ module.exports = {
         add: function(entity, room_name) {
 
             // Capture entity in closure
-            add_component_change(function() {
-                if (entity.components.home_room) return;
-                entity.components.home_room = room_name;
-                entity.dirty = true;
-            });
+            Entities.add_component(entity, "home_room", room_name);
 
         },
         remove: function(entity) {
 
             // Capture entity in closure
-            add_component_change(function() {
-                if (!entity.components.home_room) return;
-                delete entity.components.home_room;
-                entity.dirty = true;
-            });
+            Entities.remove_component(entity, "home_room");
 
+        }
+    },
+
+    // Gameobject entity
+    // Wait for a gameobject to be created
+    pending_gameobject_creep: {
+
+        add: function(entity, max_wait_time) {
+
+            if (max_wait_time == undefined) {
+                max_wait_time = 152; // Max wait time for a creep spawn is 150 ticks
+            }
+
+            // Capture entity in closure
+            Entities.add_component(entity, "wait_for_gameobject_creep", { created: Game.time, max_wait_time: max_wait_time});
+
+        },
+        remove: function(entity) {
+
+            // Capture entity in closure
+            Entities.remove_component(entity, "wait_for_gameobject_creep");
+
+        }
+    },
+
+    gameobject: {
+        add: function(entity, gameobject_id) {
+            Entities.add_component(entity, "gameobject", gameobject_id);
+        },
+        remove: function(entity) {
+            Entities.remove_component(entity, "gameobject");
         }
     }
 
-    
+
 }

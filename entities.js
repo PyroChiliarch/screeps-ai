@@ -301,41 +301,63 @@ module.exports = {
             without = [];
         }
 
-        // Get all archetypes that match the required components
-        // Uses a filter over the Memory.archetypes object
-        let archetypes = Object.values(Memory.archetypes).filter((archetype) => {
+        let result = {
+            archetypes: [],
+            entities: []
+        }
 
-            // If the archetype does not have all of the required components, return false
-            for (let component of required) {
-                if (!archetype.components.includes(component)) {
-                    return false;
+        //console.log("Archetypes: " + Object.keys(Memory.archetypes).length);
+        
+
+
+        // Make sure there are archetypes to query
+        if (Object.keys(Memory.archetypes).length) {
+            
+
+
+
+            // Get all archetypes that match the required components
+            // Uses a filter over the Memory.archetypes object
+            let archetypes = Object.values(Memory.archetypes).filter((archetype) => {
+
+                // If the archetype does not have all of the required components, return false
+                for (let component of required) {
+                    console.log("Required: " + component);
+                    console.log("Archetype: " + JSON.stringify(archetype.components));
+                    if (!archetype.components.includes(component)) {
+                        return false;
+                    }
                 }
-            }
 
-            // If the archetype has any of the components in the without array, return false
-            for (let component of without) {
-                if (archetype.components.includes(component)) {
-                    return false;
+                // If the archetype has any of the components in the without array, return false
+                for (let component of without) {
+                    if (archetype.components.includes(component)) {
+                        return false;
+                    }
                 }
-            }
-            return true;
-        });
+                return true;
+            });
 
 
 
-        // Return the archetypes and entities
-        return {
 
-            // array of archetypes
-            archetypes: archetypes,
-
-            // flat array of entities
-            entities: archetypes.map((archetype) => { 
+            // Add the archetypes to the result
+            result.archetypes = archetypes;
+            // Get all entities from the archetypes
+            result.entities = archetypes.map((archetype) => { 
                 return archetype.entities;
-            }).flat(),
+            }).flat();
+
+            console.log("Archetypes: " + JSON.stringify(archetypes));
+
+            console.log("Result: " + JSON.stringify(result));
+
         }
 
 
+        
+        // Return the archetypes and entities
+        return result;
 
     },
 

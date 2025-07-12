@@ -15,6 +15,7 @@ module.exports.loop = function() {
     // Run creep systems
     Schedule.new([
         Systems.spawnSystem,
+        Systems.assignGameobjectSystem,
        // Systems.creepCountSystem,
     ]).run();
 

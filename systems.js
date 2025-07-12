@@ -37,7 +37,6 @@ module.exports = {
 
                 // Skip entity creation if spawn fails
                 if (result !== OK) {
-                    console.log("Failed to spawn creep: " + creep_name + " " + result.toString());
                     continue;
                 }
                 console.log("Spawned creep: " + creep_name);
@@ -49,6 +48,7 @@ module.exports = {
                 // Add components
                 Components.creep.add(entity, creep_name); // This is a creep
                 Components.home_colony.add(entity, colony.id); // Creep has a home room
+                Components.pending_gameobject_creep.add(entity); // Creep is waiting for a gameobject
 
             }
             
@@ -76,9 +76,14 @@ module.exports = {
     assignGameobjectSystem: function() {
 
 
-        let result = Entities.query(['pending_gameobject_creep', 'creep'], []);
+        let result = Entities.query([
+            Components.pending_gameobject_creep.id, 
+            Components.creep.id], 
+            []);
 
 
+        console.log("Assigning gameobjects to creeps");
+        console.log(result.entities.length);
 
 
         

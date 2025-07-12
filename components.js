@@ -14,13 +14,13 @@ module.exports = {
         add: function(entity, creep_name) {
 
             // Capture entity in closure
-            Entities.add_component(entity, "creep", { name: creep_name });
+            Entities.add_component(entity, this.id, { name: creep_name });
 
         },
         remove: function(entity) {
 
             // Capture entity in closure
-            Entities.remove_component(entity, "creep");
+            Entities.remove_component(entity, this.id);
 
         }
     },
@@ -34,13 +34,13 @@ module.exports = {
         add: function(entity, room_name) {
 
             // Capture entity in closure
-            Entities.add_component(entity, "home_room", room_name);
+            Entities.add_component(entity, this.id, room_name);
 
         },
         remove: function(entity) {
 
             // Capture entity in closure
-            Entities.remove_component(entity, "home_room");
+            Entities.remove_component(entity, this.id);
 
         }
     },
@@ -58,13 +58,14 @@ module.exports = {
             }
 
             // Capture entity in closure
-            Entities.add_component(entity, "pending_gameobject_creep", { created: Game.time, max_wait_time: max_wait_time});
+            Entities.add_component(entity, this.id, { created: Game.time, max_wait_time: max_wait_time});
 
         },
         remove: function(entity) {
 
             // Capture entity in closure
-            Entities.remove_component(entity, "pending_gameobject_creep");
+            Entities.remove_component(entity, this.id);
+            console.log("Removing pending gameobject creep");
 
         }
     },
@@ -74,10 +75,10 @@ module.exports = {
         id: "gameobject",
 
         add: function(entity, gameobject_id) {
-            Entities.add_component(entity, "gameobject", gameobject_id);
+            Entities.add_component(entity, this.id, gameobject_id);
         },
         remove: function(entity) {
-            Entities.remove_component(entity, "gameobject");
+            Entities.remove_component(entity, this.id);
         }
     }
 

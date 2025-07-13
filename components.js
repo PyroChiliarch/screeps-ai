@@ -75,7 +75,10 @@ module.exports = {
         id: "gameobject",
 
         add: function(entity, gameobject_id) {
+            console.log("Adding gameobject: " + entity.components.creep.name);
+            console.log(gameobject_id);
             Entities.add_component(entity, this.id, gameobject_id);
+            console.log("Added gameobject: " + JSON.stringify(entity));
         },
         remove: function(entity) {
             Entities.remove_component(entity, this.id);

@@ -155,20 +155,17 @@ module.exports = {
     // Reorganises entities into correct archetypes
     update_archetypes: function() {
 
-
-
         // Filter out all dirty entities
         let dirty_entities = [];
         for (let archetype of Object.values(Memory.archetypes)) {
 
             // Get all dirty entities in this archetype and add them to the dirty entities list
-            dirty_entities.concat(archetype.entities.filter(entity => entity.dirty));
+            dirty_entities = dirty_entities.concat(archetype.entities.filter(entity => entity.dirty));
 
             // Remove dirty entities from the archetype
             archetype.entities = archetype.entities.filter(entity => !entity.dirty);
 
         }
-
 
 
         // Reorganise dirty entities into correct archetypes
@@ -214,7 +211,11 @@ module.exports = {
     
     process_new_entities: function() {
 
+        
+
         for (let entity of Memory.new_entities) {
+
+            console.log("Processing new entity: " + JSON.stringify(entity));
 
             // Add the entity to the correct archetype
             let archetype = this.get_archetype(entity.components);
@@ -247,6 +248,7 @@ module.exports = {
 
         // Empty quened changes
         queued_component_changes = [];
+
         
     },
 
@@ -273,6 +275,8 @@ module.exports = {
     // Add a command to the queue to be run at the end of the tick
     add_component: function(entity, component_name, component_data) {
 
+        console.log("Adding component: " + component_name);
+
         // Add the command to the queue
         queued_component_changes.push(function() {
             entity.components[component_name] = component_data;
@@ -282,10 +286,18 @@ module.exports = {
     },
 
     remove_component: function(entity, component_name) {
+
+        
+        
+        
         queued_component_changes.push(function() {
+            console.log("Removing component: " + component_name);
+            console.log(JSON.stringify(entity));
             delete entity.components[component_name];
             entity.dirty = true;
+            console.log(JSON.stringify(entity));
         });
+        
     },
 
 
@@ -305,8 +317,6 @@ module.exports = {
             archetypes: [],
             entities: []
         }
-
-        //console.log("Archetypes: " + Object.keys(Memory.archetypes).length);
         
 
 
@@ -322,8 +332,6 @@ module.exports = {
 
                 // If the archetype does not have all of the required components, return false
                 for (let component of required) {
-                    console.log("Required: " + component);
-                    console.log("Archetype: " + JSON.stringify(archetype.components));
                     if (!archetype.components.includes(component)) {
                         return false;
                     }
@@ -348,9 +356,6 @@ module.exports = {
                 return archetype.entities;
             }).flat();
 
-            console.log("Archetypes: " + JSON.stringify(archetypes));
-
-            console.log("Result: " + JSON.stringify(result));
 
         }
 

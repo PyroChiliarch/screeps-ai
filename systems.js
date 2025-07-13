@@ -81,23 +81,21 @@ module.exports = {
             Components.creep.id], 
             []);
 
-
-        console.log("Assigning gameobjects to creeps");
-        console.log(result.entities.length);
-
-
         
         for (let entity of result.entities) {
 
             let c_wait_for_gameobject_creep = entity.components.pending_gameobject_creep;
             let c_creep = entity.components.creep;
 
+            
 
             // Try getting gameobject of creep
-            let object = Game.getObjectById(Game.creeps[c_creep.name].objectId);
+            let object = Game.getObjectById(Game.creeps[c_creep.name].id);
+            
 
             // If gameobject is found, add gameobject component
             if (object) {
+                console.log("Gameobject found for creep: " + c_creep.name);
                 Components.gameobject.add(entity, object.id);
                 Components.pending_gameobject_creep.remove(entity);
                 continue;
@@ -114,18 +112,11 @@ module.exports = {
             }
         }
 
+    },
 
+    
 
-
-
-
-
-
-
-
-
-
-    }
+    
 
 
 

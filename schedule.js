@@ -15,7 +15,7 @@ module.exports = {
 
     after_tick: function() {
         // Remove empty archetypes
-        entities.clean_archetypes();
+        //entities.clean_archetypes();
     },
 
 

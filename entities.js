@@ -182,9 +182,30 @@ module.exports = {
 
         }
 
+    },
+
+
+    // Process all entities that are marked for deletion
+    process_deleted_entities: function() {
+
+        for (let archetype of Object.values(Memory.archetypes)) {
+
+            for (let i = archetype.entities.length - 1; i >= 0; i--) {
+
+                if (archetype.entities[i].delete) {
+                    archetype.entities.splice(i, 1);
+                }
+
+            }
+
+        }
 
 
     },
+
+
+
+
 
 
     // Remove all archetypes with no entities
@@ -262,9 +283,11 @@ module.exports = {
     
 
 
+    // Create a new entity at end of the schedule
+    // Returns reference to the new entity
     new: function() {
 
-        // Create a base entity with no components
+        
         let entity = { dirty: true, components: {} };
         Memory.new_entities.push(entity);
         entity.id = Math.random().toString(36).substring(2, 15);
@@ -272,7 +295,19 @@ module.exports = {
 
     },
 
-    // Add a command to the queue to be run at the end of the tick
+    // Delete an entity at end of the schedule
+    delete: function(entity) {
+        
+        // Add tag for later deletion
+        entity.delete = true;
+
+    },
+
+
+
+
+
+    // Add a component to an entity at end of the schedule
     add_component: function(entity, component_name, component_data) {
 
         console.log("Adding component: " + component_name);
@@ -285,10 +320,9 @@ module.exports = {
 
     },
 
-    remove_component: function(entity, component_name) {
 
-        
-        
+    // Remove a component from an entity at end of the schedule
+    remove_component: function(entity, component_name) {
         
         queued_component_changes.push(function() {
             console.log("Removing component: " + component_name);

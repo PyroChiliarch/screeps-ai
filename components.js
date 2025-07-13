@@ -25,6 +25,25 @@ module.exports = {
         }
     },
 
+    // Colony entity
+    colony: {
+
+        id: "colony",
+
+        add: function(entity, colony_name, room_name, source_id_array) {
+
+            // Capture entity in closure
+            Entities.add_component(entity, this.id, { name: colony_name, room: room_name });
+
+        },
+        remove: function(entity) {
+
+            // Capture entity in closure
+            Entities.remove_component(entity, this.id);
+
+        }
+    },
+
 
     // Home Colony where this enitity belongs
     home_colony: {
@@ -34,7 +53,7 @@ module.exports = {
         add: function(entity, room_name) {
 
             // Capture entity in closure
-            Entities.add_component(entity, this.id, room_name);
+            Entities.add_component(entity, this.id, { room: room_name });
 
         },
         remove: function(entity) {
@@ -75,10 +94,19 @@ module.exports = {
         id: "gameobject",
 
         add: function(entity, gameobject_id) {
-            console.log("Adding gameobject: " + entity.components.creep.name);
-            console.log(gameobject_id);
             Entities.add_component(entity, this.id, gameobject_id);
-            console.log("Added gameobject: " + JSON.stringify(entity));
+        },
+        remove: function(entity) {
+            Entities.remove_component(entity, this.id);
+        }
+    },
+
+    source: {
+
+        id: "source",
+
+        add: function(entity, source_id) {
+            Entities.add_component(entity, this.id, { id: source_id });
         },
         remove: function(entity) {
             Entities.remove_component(entity, this.id);

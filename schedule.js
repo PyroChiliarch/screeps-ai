@@ -14,8 +14,13 @@ module.exports = {
     },
 
     after_tick: function() {
+
+        // Process deleted entities
+        entities.process_deleted_entities();
+
         // Remove empty archetypes
-        //entities.clean_archetypes();
+        entities.clean_archetypes();
+        
     },
 
 

@@ -69,30 +69,54 @@ module.exports = {
         }
     },
 
-    moveToSystem: function () {
+    creep_job_system: function () {
 
-        let result = Entities.query([Components.creep.id, Components.move_to.id, Components.gameobject.id], []);
-
-        console.log("Move to system");
-        
+        let result = Entities.query([Components.creep.id, Components.gameobject.id], []);
 
         for (let entity of result.entities) {
+        }
 
-            console.log(JSON.stringify(entity.components.gameobject));
+    },
 
+    moveToSystem: function () {
+
+        // Get all creeps that are moving to a position and have a gameobject
+        let result = Entities.query([Components.creep.id, Components.move_to.id, Components.gameobject.id], []);
+
+        
+
+        // Process moveto for all creeps
+        for (let entity of result.entities) {
+
+
+            // Get creep gameobject
             let creep = Game.getObjectById(entity.components.gameobject.id);
             
 
             if (creep) {
 
+                // Check if should stop moving
                 let pos = entity.components.move_to.pos;
+                let creep_pos = creep.pos;
 
-                
+                if (entity.components.move_to.exact) {
+                    if (creep_pos.x === pos.x && creep_pos.y === pos.y) {
+                        Components.move_to.remove(entity);
+                        continue;
+                    }
+                }
+
+                if (!entity.components.move_to.exact) {
+                    if ((creep_pos.x === pos.x + 1 || creep_pos.x === pos.x - 1) && 
+                        (creep_pos.y === pos.y + 1 || creep_pos.y === pos.y - 1)) {
+                        Components.move_to.remove(entity);
+                        continue;
+                    }
+                }
+
+
                 // Move creep to position
                 let result = creep.moveTo(pos.x, pos.y);
-                console.log(JSON.stringify(pos));
-                console.log(JSON.stringify(creep.pos));
-                console.log("Move result: " + result);
 
             }
 

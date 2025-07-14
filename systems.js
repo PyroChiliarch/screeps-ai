@@ -20,33 +20,23 @@ module.exports = {
         for (let colony of colonies) {
 
             // Get creeps in this colony
-            console.log("Creeps count: " + creeps.length);
-            console.log("Colony room: " + colony.components.colony.room);
             let colony_creeps = creeps.filter(creep => creep.components.home_colony.room === colony.components.colony.room );
-
 
             // Get spawn
             let spawn = Game.rooms[colony.components.colony.room].find(FIND_MY_SPAWNS)[0];
             
-
             // For each room source
-
             let sources = Game.rooms[colony.components.colony.room].find(FIND_SOURCES);
 
-            for (let source of sources) {
-                console.log("Source: " + source.id);
 
-                console.log("Colony creeps: " + JSON.stringify(colony_creeps));
+
+            // Spawn Basic Creeps
+            for (let source of sources) {
+
                 // Get creeps assigned to this source
                 let source_creeps = colony_creeps.filter(creep => creep.components.source.id === source.id);
 
-                console.log("Source creeps: " + source_creeps.length);
-
-
-
-                console.log("Creeps: " + JSON.stringify(source_creeps));
-
-                if (creeps.length < 0) {
+                if (source_creeps.length < 1) {
 
 
                     // Spawn creep
@@ -63,6 +53,8 @@ module.exports = {
                     Components.source.add(entity, source.id);
                     Components.home_colony.add(entity, colony.components.colony.room);
                     Components.pending_gameobject_creep.add(entity);
+                    Components.creep_type_basic.add(entity);
+                    Components.move_to.add(entity, source.pos);
                     console.log("Spawned creep: " + creep_name);
                     break;
 
@@ -72,33 +64,40 @@ module.exports = {
             }
             
 
-            // Get spawn
+
+
+        }
+    },
+
+    moveToSystem: function () {
+
+        let result = Entities.query([Components.creep.id, Components.move_to.id, Components.gameobject.id], []);
+
+        console.log("Move to system");
+        
+
+        for (let entity of result.entities) {
+
+            console.log(JSON.stringify(entity.components.gameobject));
+
+            let creep = Game.getObjectById(entity.components.gameobject.id);
             
-            /*
-            if (creepCount < 0) {
 
-                // Spawn Creep
-                let creep_name = colony.id + '_' + Math.random().toString(36).substring(2, 15);
-                let result = spawn.spawnCreep([WORK, CARRY, MOVE], creep_name);
+            if (creep) {
 
-                // Skip entity creation if spawn fails
-                if (result !== OK) {
-                    continue;
-                }
-                console.log("Spawned creep: " + creep_name);
+                let pos = entity.components.move_to.pos;
 
-
-                // Create entity
-                let entity = Entities.new();
-
-                // Add components
-                Components.creep.add(entity, creep_name); // This is a creep
-                Components.home_colony.add(entity, colony.id); // Creep has a home room
-                Components.pending_gameobject_creep.add(entity); // Creep is waiting for a gameobject
+                
+                // Move creep to position
+                let result = creep.moveTo(pos.x, pos.y);
+                console.log(JSON.stringify(pos));
+                console.log(JSON.stringify(creep.pos));
+                console.log("Move result: " + result);
 
             }
-            */
 
+
+            
         }
     },
 
@@ -160,7 +159,7 @@ module.exports = {
         let result = Entities.query([Components.creep.id, Components.gameobject.id], []);
 
         for (let entity of result.entities) {
-            if (!Game.getObjectById(entity.components.gameobject)) {
+            if (!Game.getObjectById(entity.components.gameobject.id)) {
                 Entities.delete(entity); // Mark entity for deletion
                 console.log("Removed dead creep: " + entity.components.creep.name);
             }

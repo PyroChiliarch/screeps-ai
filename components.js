@@ -4,26 +4,10 @@ var Entities = require('./entities');
 module.exports = {
     
     
-    // Creep entity
-    // Creepin along
-    creep: {
-
-        id: "creep",
-
-
-        add: function(entity, creep_name) {
-
-            // Capture entity in closure
-            Entities.add_component(entity, this.id, { name: creep_name });
-
-        },
-        remove: function(entity) {
-
-            // Capture entity in closure
-            Entities.remove_component(entity, this.id);
-
-        }
-    },
+    // ////////////////////////////////////////////////////
+    // Colony components
+    // ////////////////////////////////////////////////////
+    
 
     // Colony entity
     colony: {
@@ -64,6 +48,47 @@ module.exports = {
         }
     },
 
+    // ////////////////////////////////////////////////////
+    // Creep type components
+    // ////////////////////////////////////////////////////
+
+    creep_type_basic: {
+
+        id: "creep_type_basic",
+
+        add: function(entity) {
+            Entities.add_component(entity, this.id, true);
+        },
+        remove: function(entity) {
+            Entities.remove_component(entity, this.id);
+        }
+    },
+
+    // ////////////////////////////////////////////////////
+    // Creep components
+    // ////////////////////////////////////////////////////
+
+    // Creep entity
+    // Creepin along
+    creep: {
+
+        id: "creep",
+
+
+        add: function(entity, creep_name) {
+
+            // Capture entity in closure
+            Entities.add_component(entity, this.id, { name: creep_name });
+
+        },
+        remove: function(entity) {
+
+            // Capture entity in closure
+            Entities.remove_component(entity, this.id);
+
+        }
+    },
+
     // Gameobject entity
     // Wait for a gameobject to be created
     pending_gameobject_creep: {
@@ -94,7 +119,7 @@ module.exports = {
         id: "gameobject",
 
         add: function(entity, gameobject_id) {
-            Entities.add_component(entity, this.id, gameobject_id);
+            Entities.add_component(entity, this.id, { id: gameobject_id });
         },
         remove: function(entity) {
             Entities.remove_component(entity, this.id);
@@ -111,7 +136,27 @@ module.exports = {
         remove: function(entity) {
             Entities.remove_component(entity, this.id);
         }
+    },
+
+    move_to: {
+        id: "move_to",
+        add: function(entity, pos, exact) {
+            // If exact is false, then will stop moving if creep is within 1 tile of the target
+            // If exact is true, then will stop moving if creep is at the target position
+
+            // Default exact to False
+            if (exact == undefined) {
+                exact = false;
+            }
+
+            Entities.add_component(entity, this.id, { pos: pos, exact: exact });
+        },
+        remove: function(entity) {
+            Entities.remove_component(entity, this.id);
+        }
     }
+
+    
 
 
 }

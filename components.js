@@ -138,6 +138,10 @@ module.exports = {
         }
     },
 
+    // ////////////////////////////////////////////////////
+    // Creep job components
+    // ////////////////////////////////////////////////////
+
     move_to: {
         id: "move_to",
         add: function(entity, pos, exact) {
@@ -150,6 +154,28 @@ module.exports = {
             }
 
             Entities.add_component(entity, this.id, { pos: pos, exact: exact });
+        },
+        remove: function(entity) {
+            Entities.remove_component(entity, this.id);
+        }
+    },
+
+    // Requires source component
+    harvest: {
+        id: "harvest",
+        add: function(entity, source_id) {
+            Entities.add_component(entity, this.id);
+        },
+        remove: function(entity) {
+            Entities.remove_component(entity, this.id);
+        }
+    },
+
+    // Deposit Any
+    deposit_any: {
+        id: "deposit_any",
+        add: function(entity) {
+            Entities.add_component(entity, this.id, { target_id: null });      
         },
         remove: function(entity) {
             Entities.remove_component(entity, this.id);

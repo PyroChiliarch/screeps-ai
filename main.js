@@ -12,12 +12,19 @@ module.exports.loop = function() {
     // Single Stage for now
     Schedule.before_tick();
 
+
+    Schedule.new([
+        Systems.removeDeadCreepsSystem,
+    ]).run();
+
     // Run creep systems
     Schedule.new([
-        Systems.moveToSystem,
         Systems.spawnSystem,
+        Systems.moveToSystem,
+        Systems.depositSystem,
+        Systems.creep_job_system,
+        Systems.harvestSystem,
         Systems.assignGameobjectSystem,
-        Systems.removeDeadCreepsSystem,
         Systems.consoleCommandsSystem,
     ]).run();
 
@@ -124,7 +131,7 @@ let old_code = function () {
             // Get creeps for this source
             let sourceCreeps = _.filter(harvestCreepsA, (creep) => creep.memory.source === source.id);
 
-            if (sourceCreeps.length < 6) {
+            if (sourceCreeps.length < 4) {
                 spawns[0].spawnCreep([WORK, CARRY, CARRY, MOVE, MOVE], "harvester_basic_" + Game.time, {
                     memory: { role: "harvester", roleType: "basic", colony: colony.name, source: source.id }
                 });

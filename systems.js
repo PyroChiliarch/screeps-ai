@@ -71,9 +71,135 @@ module.exports = {
 
     creep_job_system: function () {
 
-        let result = Entities.query([Components.creep.id, Components.gameobject.id], []);
+        // Get all
+        let result = Entities.query(
+            [Components.creep_type_basic.id, Components.gameobject.id, Components.source.id],
+            [Components.move_to.id, Components.harvest.id, Components.deposit_any.id]);
+        
+        for (let entity of result.entities) {
+
+            let creep = Game.getObjectById(entity.components.gameobject.id);
+
+
+
+            if (creep) {
+                console.log("Creep: " + creep.name + " energy: " + creep.store.getUsedCapacity());
+
+                // If creep has energy, deposit
+                if (creep.store.getUsedCapacity() > 0) {
+                    Components.deposit_any.add(entity);
+                }
+
+                // If creep has no energy, harvest
+                if (creep.store.getUsedCapacity() === 0) {
+                    Components.harvest.add(entity);
+                }
+
+            }
+
+        }
+
+    },
+
+
+    harvestSystem: function () {
+
+        let result = Entities.query([Components.gameobject.id, Components.harvest.id], []);
 
         for (let entity of result.entities) {
+
+            let creep = Game.getObjectById(entity.components.gameobject.id);
+            let source = Game.getObjectById(entity.components.source.id);
+
+
+
+            // Check if creep is full
+            if (creep.store.getFreeCapacity() === 0) {
+                Components.harvest.remove(entity);
+                continue;
+            }
+
+            // 
+            if (creep && source) {
+                let result = creep.harvest(source);
+                if (result === OK) continue;
+
+                if (result === ERR_NOT_IN_RANGE) {
+                    Components.move_to.add(entity, source.pos);
+                }
+
+                if (result === ERR_TIRED) continue;
+
+                console.log("ERR: Unexpected harvest result, creep: " + creep.name + " source: " + source.id + " result: " + result);
+            
+            } else {
+                console.log("ERR: Creep or source not found, creep: " + creep.name + " source: " + source.id);
+            }
+
+        }
+
+
+    },
+
+    depositSystem: function () {
+
+        let result = Entities.query([Components.gameobject.id, Components.deposit_any.id], [Components.move_to.id]);
+
+        for (let entity of result.entities) {
+            
+            // Get Creep object
+            let creep = Game.getObjectById(entity.components.gameobject.id);
+            if (!creep) {
+                console.log("ERR: Creep not found, entity: " + entity.components.gameobject.id);
+                continue;
+            }
+
+            // Get target
+            let target = Game.getObjectById(entity.components.deposit_any.target_id);
+
+
+            // If no target, select a target and move to it
+            if (!target) {
+                console.log("Selecting target for creep: " + creep.name);
+
+
+                // Check for any spawns with free capacity
+                let spawns = Game.rooms[creep.room.name].find(FIND_MY_SPAWNS);
+
+                for (let spawn of spawns) {
+                    if (spawn.store.getFreeCapacity() > 0) {
+                        entity.components.deposit_any.target_id = spawn.id;
+                        Components.move_to.add(entity, spawn.pos);
+                        continue;
+                    }
+                }
+
+                // If no other targets, select the controller
+                controller = Game.rooms[creep.room.name].controller;
+                entity.components.deposit_any.target_id = controller.id;
+                Components.move_to.add(entity, controller.pos);
+                continue;
+
+            }
+
+
+
+            console.log("Depositing to target: " + JSON.stringify(target));
+            
+            if (target) {
+                if (target.structureType === STRUCTURE_SPAWN) {
+                    console.log("Depositing to spawn for creep: " + creep.name);
+                    let result = creep.transfer(target, RESOURCE_ENERGY);
+                } else if (target.structureType === STRUCTURE_CONTROLLER) {
+                    console.log("Depositing to controller for creep: " + creep.name);
+                    let result = creep.transfer(target, RESOURCE_ENERGY);
+                } else {
+                    console.log("ERR: Invalid target type: " + target.structureType);
+                }
+                console.log("Deposit result: " + result);
+            } else {
+                console.log("ERR: No target found for creep: " + creep.name);
+            }
         }
 
     },

@@ -6,21 +6,15 @@ module.exports = {
 
     before_tick: function() {
 
-        // Create new entities
-        // This allows time for game objects spawned in the last tick to be 
-        // created and entities added before the systems run
-        entities.process_new_entities();
+        
 
     },
 
     after_tick: function() {
 
-        // Process deleted entities
-        entities.process_deleted_entities();
-
         // Remove empty archetypes
         entities.clean_archetypes();
-        
+
     },
 
 
@@ -37,6 +31,13 @@ module.exports = {
             systems: systems_to_run,
 
             run: function() {
+
+                
+
+                // Process deleted entities
+                entities.process_deleted_entities();
+
+                
                 
 
                 // ===== Run Systems =====
@@ -46,7 +47,13 @@ module.exports = {
                 }
 
 
+
+                
+
+
                 // ===== Process Changes =====
+                // Create new entities
+                entities.process_new_entities();
                 // Run commands to be run after the current tick
                 entities.process_component_changes();
                 // Update entity archetypes

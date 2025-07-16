@@ -236,8 +236,6 @@ module.exports = {
 
         for (let entity of Memory.new_entities) {
 
-            console.log("Processing new entity: " + JSON.stringify(entity));
-
             // Add the entity to the correct archetype
             let archetype = this.get_archetype(entity.components);
             archetype.entities.push(entity);
@@ -326,10 +324,8 @@ module.exports = {
         
         queued_component_changes.push(function() {
             console.log("Removing component: " + component_name);
-            console.log(JSON.stringify(entity));
             delete entity.components[component_name];
             entity.dirty = true;
-            console.log(JSON.stringify(entity));
         });
         
     },
